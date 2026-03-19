@@ -10,18 +10,26 @@
 
         /*PERSONNE*/
         class individu {
-            constructor (firstname, secondname) {
+            constructor(firstname, secondname) {
                 this.firstname = firstname;
                 this.secondname = secondname;
             }
         }
-    
-        /*CLIENTS*/
-        class client extends individu{
-            constructor (firstname, secondname, localisation) {
-                super(firstname, secondname)
-                this.localisation = localisation;
-            }
+        class client extends individu {
+          constructor(firstname, secondname, localisation) {
+          super(firstname, secondname);
+          this.localisation = localisation;
+          }
+
+          passerCommande() {
+           const newCommande = new commande(
+            Math.floor(Math.random() * 1000),
+            "en attente"
+           );
+
+           console.log(`${this.firstname} a passé une commande (${newCommande.id})`);
+            return newCommande;
+           }
         }
 
         /*COMMANDE*/
@@ -30,13 +38,30 @@
                 this.id = id;
                 this.etat = etat;
             }
+        
+
+        /*Faire evoluer l'état de la commande */
+            changerEtat(nouvelEtat) {
+              this.etat = nouvelEtat;
+              console.log(`Commande ${this.id} → ${this.etat}`);
+            }
         }
+
 
         /*LIVREUR*/
         class livreur extends individu{
             constructor (firstname, secondname, disponibility) {
                 super(firstname, secondname);
-                this.disponibility = null
+                this.disponibility = true;
+            }
+            prendreCommande(cmd) {
+              this.disponibility = false;
+              console.log(`${this.firstname} prend la commande ${cmd.id}`);
+            }
+
+            livrerCommande(cmd) {
+              this.disponibility = true;
+              console.log(`${this.firstname} a livré la commande ${cmd.id}`);
             }
         }
 
@@ -138,20 +163,30 @@
 
         /*POUR PASSER UNE COMMANDE*/
         async function Commander() {
-         try {
-          console.log("Nouvelle commande...");
+    try {
+        const cl = new client("Jean", "Dupont", "Paris");
+        const liv = new livreur("Ali", "Kone");
 
-          await PreparerCommandeSuccess(3000);
-          await PlatCuit(2000);
-          await FdLiv(2000);
-          await LivSuc(3000);
+        const cmd = cl.passerCommande();
 
-          console.log("Commande terminée ✅");
+        await PreparerCommandeSuccess(2000);
+        cmd.changerEtat("validée");
 
-         } catch(e) {
-          console.log("❌ Erreur :", e);
-         }
-        }
+        await PlatCuit(2000);
+        cmd.changerEtat("prête");
+
+        await FdLiv(2000);
+        liv.prendreCommande(cmd);
+
+        await LivSuc(3000);
+        liv.livrerCommande(cmd);
+
+        cmd.changerEtat("livrée ✅");
+
+    } catch (e) {
+        console.log("❌ Erreur :", e);
+    }
+}
 
         setInterval(() => {
           Commander()
