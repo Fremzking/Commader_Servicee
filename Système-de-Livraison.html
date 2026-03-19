@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIAM-EAT</title>
+
+    <script>
+        /*Création des Acteurs*/
+
+        /*PERSONNE*/
+        class individu {
+            constructor (firstname, secondname) {
+                this.firstname = firstname;
+                this.secondname = secondname;
+            }
+        }
+    
+        /*CLIENTS*/
+        class client extends individu{
+            constructor (firstname, secondname, localisation) {
+                super(firstname, secondname)
+                this.localisation = localisation;
+            }
+        }
+
+        /*COMMANDE*/
+        class commande {
+            constructor (id, etat) {
+                this.id = id;
+                this.etat = etat;
+            }
+        }
+
+        /*LIVREUR*/
+        class livreur extends individu{
+            constructor (firstname, secondname, disponibility) {
+                super(firstname, secondname);
+                this.disponibility = null
+            }
+        }
+
+        /*GESTION DU TEMPS*/
+        function CommandSuccess (commtime1) {
+            return new Promise ((resolve, reject)=>{
+                setTimeout(()=>{
+                   if(Math.random()<0.7) {
+                    resolve("La commande a été effectué")
+                   } else {
+                    reject("La commande ne peu pas être satifaite pour le moment")
+                   }
+                }, commtime1)
+            } )
+        }
+        
+         /*TEMPS DE PREPARATION*/
+        function Cuisson (plat_time) {
+            return new Promise((resolve) =>{
+                setTimeout(() =>{
+                    resolve(plat_time)
+                }, plat_time)
+            })
+        }
+
+         /*TROUVER UN LIVREUR*/
+        function FindLivreur (liv_time2) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() =>{
+                    if (Math.random()<0.5) {
+                        resolve("Un livreur a été trouvé")
+                    } else {
+                        reject("Aucun livreur disponible")
+                    }
+                }, liv_time2)
+
+            }) 
+        }
+
+         /*LIVRAISON*/
+        function Livraison(time) {
+            return new Promise((resolve, reject)=>{
+                setTimeout(()=>{
+                    if (Math.random()<0.9) {
+                        resolve("La livraison a été effectuée")
+                    } else {
+                        reject("la livraison a échoué")
+                    }
+                }, time)
+            })
+        }
+
+        /*COMMANDE REJETTE*/
+        function RejectCommande(time) {
+            return new Promise((resolve, reject) =>{
+                setTimeout(()=>{
+                    reject("La commande a échoué")
+                }, time)
+            })
+        }
+        
+
+        /*GESTION DE DE LA COMMANDE*/
+        async function PreparerCommandeSuccess(duration) {
+            const PC = await CommandSuccess(duration);
+            console.log("La commande a été validé")
+            return 5
+        }
+
+        /*GESTION DE PREPARATION DU PLAT*/
+        async function PlatCuit(duration) {
+            const Prepar = await Cuisson(duration);
+            console.log("La plat est prêt a être livré")
+        }
+
+        /*GESTION DE LA LIVRAISON*/
+        
+        /*LIVRAISON EFFECTUE*/
+        async function LivSuc(duration) {
+            const LS = await Livraison(duration);
+            console.log("La livraison a bien été faite")
+        }
+        
+        
+        /*GESTION DE RECHERCHE DE LIVREUR */
+
+        /*TROUVE*/
+        async function FdLiv(duration) {
+            const FL = await FindLivreur(duration);
+            console.log("Un livreur a été trouvé")
+        }
+
+        /*Commande annulé*/
+        async function CommandeAnnul(duration) {
+            const CA = await RejectCommande(duration);
+            console.log("La commande a été annuléé")
+        }
+
+
+        /*POUR PASSER UNE COMMANDE*/
+        async function Commander() {
+         try {
+          console.log("Nouvelle commande...");
+
+          await PreparerCommandeSuccess(3000);
+          await PlatCuit(2000);
+          await FdLiv(2000);
+          await LivSuc(3000);
+
+          console.log("Commande terminée ✅");
+
+         } catch(e) {
+          console.log("❌ Erreur :", e);
+         }
+        }
+
+        setInterval(() => {
+          Commander()
+        }, 10000)
+
+
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
